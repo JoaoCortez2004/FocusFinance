@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FocusFinance - Freio Antigasto & Controle Pessoal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        paper: {
+                            50: '#FAF8F5',
+                            100: '#F4F0EA',
+                            200: '#E8E2D8',
+                        },
+                        forest: {
+                            800: '#23382B',
+                            900: '#19281F',
+                        },
+                        terracotta: {
+                            600: '#C05A46',
+                            700: '#A34634',
+                        },
+                        charcoal: {
+                            800: '#2B2C2C',
+                            900: '#1C1D1D',
+                        }
+                    },
+                    fontFamily: {
+                        serif: ['Playfair Display', 'Georgia', 'serif'],
+                        sans: ['DM Sans', 'sans-serif'],
+                        mono: ['DM Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: #FAF8F5;
+            color: #1C1D1D;
+            background-image: radial-gradient(#E8E2D8 0.75px, transparent 0.75px);
+            background-size: 16px 16px;
+        }
+        .font-serif-title { font-family: 'Playfair Display', Georgia, serif; }
+        .font-mono-num { font-family: 'DM Mono', monospace; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.02); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E8E2D8; border-radius: 4px; }
+    </style>
+</head>
+<body class="min-h-full flex flex-col justify-between selection:bg-forest-800 selection:text-paper-50">
+
+    <!-- HEADER & NAV -->
+    <header class="border-b border-paper-200 bg-paper-50/90 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer" onclick="switchTab('dashboard')">
+                <div class="w-7 h-7 rounded-md bg-forest-900 text-paper-50 flex items-center justify-center font-serif-title font-bold text-sm">
+                    $
+                </div>
+                <span class="font-serif-title font-bold text-lg text-charcoal-900 tracking-tight">FocusFinance</span>
+            </div>
+
+            <!-- Header Quick Badge -->
+            <button onclick="openConfigModal()" class="bg-paper-100 border border-paper-200 px-3 py-1 rounded-full text-xs text-charcoal-800 hover:bg-paper-200 transition-colors flex items-center gap-1.5">
+                <i data-lucide="settings" class="w-3.5 h-3.5 opacity-70"></i>
+                <span>Configurar Salário</span>
+            </button>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="max-w-2xl mx-auto px-4 flex border-t border-paper-200/60 text-xs sm:text-sm overflow-x-auto custom-scrollbar">
+            <button data-nav="dashboard" onclick="switchTab('dashboard')" class="nav-tab border-b-2 border-forest-900 text-forest-900 font-semibold py-2.5 px-3 flex items-center gap-1.5 transition-colors shrink-0">
+                <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                Freio Antigasto
+            </button>
+            <button data-nav="horas-vida" onclick="switchTab('horas-vida')" class="nav-tab border-b-2 border-transparent text-charcoal-800 opacity-70 hover:opacity-100 py-2.5 px-3 flex items-center gap-1.5 transition-colors shrink-0">
+                <i data-lucide="clock" class="w-4 h-4"></i>
+                Horas de Vida
+            </button>
+            <button data-nav="extrato" onclick="switchTab('extrato')" class="nav-tab border-b-2 border-transparent text-charcoal-800 opacity-70 hover:opacity-100 py-2.5 px-3 flex items-center gap-1.5 transition-colors shrink-0">
+                <i data-lucide="receipt" class="w-4 h-4"></i>
+                Lançamentos
+            </button>
+        </nav>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-xl mx-auto w-full px-4 py-6 flex-1 flex flex-col justify-start space-y-6">
+
+        <!-- TAB 1: DASHBOARD (FREIO ANTIGASTO) -->
+        <div id="tab-dashboard" class="space-y-6">
+            
+            <!-- Safe to Spend Banner -->
+            <div class="bg-paper-100 border border-paper-200 rounded-2xl p-6 text-center space-y-3 shadow-sm">
+                <span class="inline-block px-3 py-1 rounded-full bg-forest-900/10 text-forest-900 text-xs font-semibold uppercase tracking-wider">
+                    ✦ Limite Livre Para Gastar Hoje
+                </span>
+                
+                <div id="display-safe-today" class="font-mono-num text-5xl font-bold text-forest-900 tracking-tight">
+                    R$ 0,00
+                </div>
+
+                <p id="display-safe-desc" class="text-xs text-charcoal-800 opacity-70 max-w-xs mx-auto">
+                    Calculado com base nas tuas contas fixas e dias restantes do mês.
+                </p>
+
+                <div class="pt-2 flex items-center justify-center gap-2">
+                    <button onclick="openExpenseModal()" class="bg-forest-900 hover:bg-forest-800 text-paper-50 px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-sm transition-all active:scale-[0.98]">
+                        <i data-lucide="minus-circle" class="w-4 h-4"></i>
+                        <span>Registar Gasto</span>
+                    </button>
+                    <button onclick="openIncomeModal()" class="bg-paper-50 hover:bg-paper-200 border border-paper-200 text-charcoal-900 px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all">
+                        <i data-lucide="plus-circle" class="w-4 h-4 text-forest-900"></i>
+                        <span>Registar Entradas</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resumo Mensal Cards -->
+            <div class="grid grid-cols-2 gap-3">
+                <div class="bg-paper-100 border border-paper-200 p-4 rounded-2xl space-y-1">
+                    <span class="text-[10px] uppercase font-semibold text-charcoal-800 opacity-60">Gastos do Mês</span>
+                    <p id="display-month-spent" class="font-mono-num text-lg font-bold text-terracotta-600">R$ 0,00</p>
+                </div>
+                <div class="bg-paper-100 border border-paper-200 p-4 rounded-2xl space-y-1">
+                    <span class="text-[10px] uppercase font-semibold text-charcoal-800 opacity-60">Contas Fixas / Reservas</span>
+                    <p id="display-month-fixed" class="font-mono-num text-lg font-bold text-charcoal-900">R$ 0,00</p>
+                </div>
+            </div>
+
+            <!-- Dica Antigasto do Dia -->
+            <div class="bg-paper-100/60 border border-dashed border-paper-200 p-4 rounded-2xl flex items-start gap-3">
+                <div class="p-2 bg-forest-900/10 text-forest-900 rounded-xl shrink-0 mt-0.5">
+                    <i data-lucide="brain-circuit" class="w-4 h-4"></i>
+                </div>
+                <div class="space-y-1">
+                    <h4 class="text-xs font-bold text-charcoal-900">Regra do Impulso</h4>
+                    <p class="text-[11px] text-charcoal-800 opacity-70 leading-relaxed">
+                        Antes de comprar algo não essencial, calcula primeiro quantas horas de trabalho isso te custa na aba "Horas de Vida".
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: CALCULADORA HORAS DE VIDA -->
+        <div id="tab-horas-vida" class="hidden space-y-6">
+            <div class="text-center space-y-1">
+                <h2 class="text-xl font-serif-title font-bold text-charcoal-900">Quanto Custa na Tua Vida?</h2>
+                <p class="text-xs text-charcoal-800 opacity-60">Converte qualquer valor monetário no teu tempo de trabalho real</p>
+            </div>
+
+            <div class="bg-paper-100 border border-paper-200 p-5 rounded-2xl space-y-4">
+                <div class="space-y-1.5">
+                    <label for="input-item-price" class="block text-xs font-semibold text-charcoal-800 uppercase tracking-wider">Valor do Desejo / Compra (R$)</label>
+                    <input type="number" step="0.01" id="input-item-price" placeholder="Ex: 250,00" 
+                        class="w-full bg-paper-50 border border-paper-200 rounded-xl px-3.5 py-3 text-lg font-mono-num font-bold text-charcoal-900 focus:outline-none focus:border-forest-900">
+                </div>
+
+                <div id="result-life-hours" class="hidden bg-paper-50 border border-paper-200 p-4 rounded-xl text-center space-y-2">
+                    <span class="text-[11px] uppercase tracking-wider font-semibold text-charcoal-800 opacity-60">Isso equivale a exatamente:</span>
+                    <div id="display-hours-calculated" class="font-mono-num text-3xl font-bold text-terracotta-600">
+                        0 horas
+                    </div>
+                    <p id="display-hours-analogy" class="text-xs text-charcoal-800 italic">
+                        "Ou cerca de 0 dias inteiros do teu trabalho duro."
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: EXTRATO / LANÇAMENTOS -->
+        <div id="tab-extrato" class="hidden space-y-4">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xl font-serif-title font-bold text-charcoal-900">Histórico do Mês</h2>
+                <button onclick="clearAllEntries()" class="text-[11px] text-terracotta-600 font-medium hover:underline">Limpar Tudo</button>
+            </div>
+
+            <div id="list-transactions" class="space-y-2">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL CONFIGURAÇÃO SALÁRIO -->
+    <div id="modal-config" class="fixed inset-0 bg-charcoal-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-paper-50 border border-paper-200 rounded-2xl p-5 max-w-sm w-full space-y-4">
+            <h3 class="font-serif-title font-bold text-lg text-charcoal-900">Configurar Base Financeira</h3>
+            
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-charcoal-800 mb-1">Rendimento Mensal Líquido (R$)</label>
+                    <input type="number" id="cfg-income" placeholder="Ex: 3000" class="w-full bg-paper-100 border border-paper-200 rounded-xl px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block font-semibold text-charcoal-800 mb-1">Contas Fixas / Reservas do Mês (R$)</label>
+                    <input type="number" id="cfg-fixed" placeholder="Ex: 1500" class="w-full bg-paper-100 border border-paper-200 rounded-xl px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block font-semibold text-charcoal-800 mb-1">Horas Trabalhadas por Mês</label>
+                    <input type="number" id="cfg-hours" placeholder="Ex: 160" value="160" class="w-full bg-paper-100 border border-paper-200 rounded-xl px-3 py-2 text-sm">
+                </div>
+            </div>
+
+            <div class="flex gap-2">
+                <button onclick="saveConfig()" class="flex-1 bg-forest-900 text-paper-50 text-xs font-semibold py-2.5 rounded-xl">Salvar</button>
+                <button onclick="closeConfigModal()" class="text-xs text-charcoal-800 opacity-60 px-3">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NOVO GASTO -->
+    <div id="modal-expense" class="fixed inset-0 bg-charcoal-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-paper-50 border border-paper-200 rounded-2xl p-5 max-w-sm w-full space-y-4">
+            <h3 class="font-serif-title font-bold text-lg text-charcoal-900">Registar Novo Gasto</h3>
+            
+            <form id="form-expense" class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold text-charcoal-800 mb-1">Descrição</label>
+                    <input type="text" id="exp-desc" placeholder="Ex: Almoço, Uber, iFood" required class="w-full bg-paper-100 border border-paper-200 rounded-xl px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block font-semibold text-charcoal-800 mb-1">Valor (R$)</label>
+                    <input type="number" step="0.01" id="exp-amount" placeholder="0,00" required class="w-full bg-paper-100 border border-paper-200 rounded-xl px-3 py-2 text-sm font-mono-num">
+                </div>
+                <div class="flex gap-2 pt-2">
+                    <button type="submit" class="flex-1 bg-terracotta-600 text-paper-50 text-xs font-semibold py-2.5 rounded-xl">Registar Gasto</button>
+                    <button type="button" onclick="closeExpenseModal()" class="text-xs text-charcoal-800 opacity-60 px-3">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-paper-200/60 py-4 text-center text-xs text-charcoal-800 opacity-50">
+        <p>FocusFinance — Consciência financeira um dia de cada vez.</p>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        function safeCreateIcons() {
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                try { window.lucide.createIcons(); } catch(e) {}
+            }
+        }
+
+        const STORAGE_CFG = 'ffinance_config';
+        const STORAGE_TX = 'ffinance_transactions';
+
+        function getConfig() {
+            return JSON.parse(localStorage.getItem(STORAGE_CFG)) || { income: 3000, fixed: 1500, hours: 160 };
+        }
+
+        function getTransactions() {
+            return JSON.parse(localStorage.getItem(STORAGE_TX)) || [];
+        }
+
+        function switchTab(target) {
+            document.querySelectorAll('.nav-tab').forEach(t => {
+                if (t.dataset.nav === target) {
+                    t.className = 'nav-tab border-b-2 border-forest-900 text-forest-900 font-semibold py-2.5 px-3 flex items-center gap-1.5 transition-colors shrink-0';
+                } else {
+                    t.className = 'nav-tab border-b-2 border-transparent text-charcoal-800 opacity-70 hover:opacity-100 py-2.5 px-3 flex items-center gap-1.5 transition-colors shrink-0';
+                }
+            });
+
+            document.getElementById('tab-dashboard').classList.add('hidden');
+            document.getElementById('tab-horas-vida').classList.add('hidden');
+            document.getElementById('tab-extrato').classList.add('hidden');
+
+            document.getElementById(`tab-${target}`).classList.remove('hidden');
+            if (target === 'extrato') renderTransactions();
+        }
+
+        function updateDashboard() {
+            const cfg = getConfig();
+            const txs = getTransactions();
+
+            const now = new Date();
+            const totalDaysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const daysRemaining = Math.max(totalDaysInMonth - now.getDate() + 1, 1);
+
+            const totalSpent = txs.reduce((acc, t) => acc + (t.type === 'expense' ? t.amount : 0), 0);
+            
+            // Calculo do Livre para Gastar Hoje
+            const availableDiscretionary = (cfg.income - cfg.fixed) - totalSpent;
+            const safeToday = Math.max(availableDiscretionary / daysRemaining, 0);
+
+            document.getElementById('display-safe-today').textContent = `R$ ${safeToday.toFixed(2).replace('.', ',')}`;
+            document.getElementById('display-month-spent').textContent = `R$ ${totalSpent.toFixed(2).replace('.', ',')}`;
+            document.getElementById('display-month-fixed').textContent = `R$ ${parseFloat(cfg.fixed).toFixed(2).replace('.', ',')}`;
+
+            safeCreateIcons();
+        }
+
+        // Calculadora de Horas de Vida
+        document.getElementById('input-item-price')?.addEventListener('input', (e) => {
+            const price = parseFloat(e.target.value);
+            const box = document.getElementById('result-life-hours');
+            if (!price || price <= 0) {
+                box.classList.add('hidden');
+                return;
+            }
+
+            const cfg = getConfig();
+            const hourlyRate = (cfg.income || 1) / (cfg.hours || 160);
+            const hoursNeeded = price / hourlyRate;
+            const daysWork = hoursNeeded / 8;
+
+            document.getElementById('display-hours-calculated').textContent = `${hoursNeeded.toFixed(1)} horas`;
+            document.getElementById('display-hours-analogy').textContent = `ou cerca de ${daysWork.toFixed(1)} dias de trabalho inteiros.`;
+            box.classList.remove('hidden');
+        });
+
+        // Modais e Forms
+        function openConfigModal() {
+            const cfg = getConfig();
+            document.getElementById('cfg-income').value = cfg.income;
+            document.getElementById('cfg-fixed').value = cfg.fixed;
+            document.getElementById('cfg-hours').value = cfg.hours;
+            document.getElementById('modal-config').classList.remove('hidden');
+        }
+
+        function closeConfigModal() { document.getElementById('modal-config').classList.add('hidden'); }
+
+        function saveConfig() {
+            const income = parseFloat(document.getElementById('cfg-income').value) || 0;
+            const fixed = parseFloat(document.getElementById('cfg-fixed').value) || 0;
+            const hours = parseFloat(document.getElementById('cfg-hours').value) || 160;
+
+            localStorage.setItem(STORAGE_CFG, JSON.stringify({ income, fixed, hours }));
+            closeConfigModal();
+            updateDashboard();
+        }
+
+        function openExpenseModal() { document.getElementById('modal-expense').classList.remove('hidden'); }
+        function closeExpenseModal() { document.getElementById('modal-expense').classList.add('hidden'); }
+
+        document.getElementById('form-expense')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const desc = document.getElementById('exp-desc').value.trim();
+            const amount = parseFloat(document.getElementById('exp-amount').value);
+
+            if (!desc || !amount) return;
+
+            const txs = getTransactions();
+            txs.unshift({
+                id: 'tx-' + Date.now(),
+                desc: desc,
+                amount: amount,
+                type: 'expense',
+                timestamp: new Date().toISOString()
+            });
+
+            localStorage.setItem(STORAGE_TX, JSON.stringify(txs));
+            document.getElementById('form-expense').reset();
+            closeExpenseModal();
+            updateDashboard();
+        });
+
+        function renderTransactions() {
+            const txs = getTransactions();
+            const list = document.getElementById('list-transactions');
+
+            if (txs.length === 0) {
+                list.innerHTML = `<div class="p-6 text-center text-xs opacity-60 bg-paper-100 rounded-2xl">Nenhum gasto registrado este mês.</div>`;
+                return;
+            }
+
+            list.innerHTML = txs.map(t => `
+                <div class="bg-paper-100 border border-paper-200 p-3.5 rounded-xl flex items-center justify-between">
+                    <div>
+                        <h4 class="text-xs font-semibold text-charcoal-900">${t.desc}</h4>
+                        <span class="text-[10px] text-charcoal-800 opacity-60">${new Date(t.timestamp).toLocaleDateString('pt-BR')}</span>
+                    </div>
+                    <span class="font-mono-num text-xs font-bold text-terracotta-600">- R$ ${t.amount.toFixed(2).replace('.', ',')}</span>
+                </div>
+            `).join('');
+            safeCreateIcons();
+        }
+
+        function clearAllEntries() {
+            if (confirm('Desejas apagar todo o histórico de lançamentos?')) {
+                localStorage.removeItem(STORAGE_TX);
+                updateDashboard();
+                renderTransactions();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            safeCreateIcons();
+            updateDashboard();
+        });
+    </script>
+</body>
+</html>
